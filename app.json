@@ -4,10 +4,10 @@
     "slug": "MyBook",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icon/android/mipmap-xxhdpi/ic_launcher_round.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/icon/android/mipmap-xhdpi/ic_launcher_foreground.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -19,12 +19,18 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon/android/mipmap-xxhdpi/ic_launcher_round.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.mritunjay_kumar.MyBook"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/icon/android/mipmap-xxhdpi/ic_launcher_round.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "05c6689a-b1a2-4279-8b50-3a2b4c4fa26d"
+      }
     }
   }
 }

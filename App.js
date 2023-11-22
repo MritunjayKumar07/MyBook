@@ -1,32 +1,53 @@
-import React from 'react'
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createStackNavigator } from '@react-navigation/stack';
 
-//Screens:-
-import Page from './src/components/Page';
+import SplashScreen from './src/components/Page';
 import Home from './src/screens/Home';
+import Page from './src/components/Page';
 import SideBar from './src/components/SideBar';
+import Search from './src/components/Search';
 
+// Components
+import BottomNavigation from './src/components/BottomNavigation';
+import TopBar from './src/components/TopBar';
+import colors from './assets/colors';
 
-const Stack = createNativeStackNavigator();
+const Stack = createStackNavigator();
 
 function ScreensStack() {
   return (
-    <Stack.Navigator initialRouteName='Page'>
-      <Stack.Screen name="Page" component={Page} options={{headerShown: false,}}/>
-      <Stack.Screen name="Home" component={Home} options={{headerShown: false,}}/>
-      <Stack.Screen name='SideBar' component={SideBar} options={{headerShown:false,}}/>
+    <Stack.Navigator initialRouteName="Home">
+      <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
+      <Stack.Screen name="Page" component={Page} options={{ headerShown: false }} />
+      <Stack.Screen name="SideBar" component={SideBar} options={{ headerShown: false }} />
+      <Stack.Screen name="Search" component={Search} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }
 
 export default function App() {
+  const [isAppReady, setAppReady] = useState(false);
+
+  useEffect(() => {
+    const initializeApp = async () => {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setAppReady(true);
+    };
+    initializeApp();
+  }, []);
+
+  if (!isAppReady) {
+    return <SplashScreen />;
+  }
+
   return (
     <NavigationContainer>
-    <StatusBar style='dark'/>
+      <StatusBar translucent backgroundColor={colors.primary} color={colors.text} />
+      <TopBar />
       <ScreensStack />
+      <BottomNavigation />
     </NavigationContainer>
-  )
+  );
 }

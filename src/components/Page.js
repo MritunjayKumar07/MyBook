@@ -1,8 +1,9 @@
 import React from 'react';
-import { StyleSheet, View, Text, Pressable, ImageBackground } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ImageBackground } from 'react-native';
 import colors from '../../assets/colors';
 
-const Page = ({ navigation }) => {
+const Page = () => {
+
     return (
         <View style={styles.container}>
             <View style={styles.inner}>
@@ -18,9 +19,7 @@ const Page = ({ navigation }) => {
                         DIGITALIZE YOUR BUSINESS
                     </Text>
                 </View>
-                <Pressable style={styles.Nextbutton} onPress={() => navigation.navigate('Home')}>
-                    <Text style={styles.text}>Next</Text>
-                </Pressable>
+                
             </View>
         </View>
     );
@@ -66,26 +65,5 @@ const styles = StyleSheet.create({
         // fontFamily: 'Poppins',
         fontSize: 1.25 * 16,
         fontWeight: '600',
-    },
-    Nextbutton: {
-        paddingVertical: 1.0625 * 16,
-        paddingHorizontal: 7.1875 * 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 0.625 * 16,
-        borderRadius: 1 * 16,
-        shadowColor: 'rgba(0, 0, 0, 100)',
-        backgroundColor:colors.background,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 5,
-        shadowRadius: 4,
-        elevation: 12,
-    },
-    text: {
-        color: colors.primary,
-        textAlign: 'center',
-        // fontFamily: 'Poppins',
-        fontSize: 1.5 * 16,
-        fontWeight: '700',
     },
 });

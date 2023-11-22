@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, } from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,11 +9,14 @@ import {
   Alert,
   FlatList,
   ScrollView,
+  Dimensions,
+  Modal
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import colors from '../../assets/colors';
+
 
 const applyFilter = (data, filterCriteria, filterKeyword) => {
   let filteredData = [...data];
@@ -29,20 +32,25 @@ const applyFilter = (data, filterCriteria, filterKeyword) => {
   }
   return filteredData;
 };
+const { height, width } = Dimensions.get('window');
 
-export default function Home({ navigation }) {
+export default function Home() {
+  const [sections, setSections] = useState(['Loan', 'Udhar', 'Expense', 'Income']);
   const [activeSection, setActiveSection] = useState('Loan');
   const [filterCriteria, setFilterCriteria] = useState('party');
   const [filterKeyword, setFilterKeyword] = useState('');
   const [data, setData] = useState([]);
   const [show, setShow] = useState(null);
   const [addData, setAddData] = useState(false);
-  const [edit, setEdit] = useState(true); // Changed initial state for edit mode
+  const [edit, setEdit] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
   const [inputValues, setInputValues] = useState({
     party: '',
     amount: '',
     description: '',
   });
+  const [newSectionInput, setNewSectionInput] = useState('');
+
 
   const generateUniqueId = () => {
     return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
@@ -136,7 +144,7 @@ export default function Home({ navigation }) {
       Alert.alert('Error', 'Error editing data: ' + error.message);
     }
   };
-  
+
 
   const getData = async () => {
     try {
@@ -159,30 +167,63 @@ export default function Home({ navigation }) {
 
   const totalAmount = calculateTotalAmount(data);
 
+  const handleOKPress = () => {
+    if (newSectionInput.trim() !== '') {
+      setSections([...sections, newSectionInput]);
+      setNewSectionInput('');
+      setModalVisible(false);
+      SaveSection();
+    } else {
+      Alert.alert('Error', 'Section name cannot be empty');
+    }
+  };
+
+  const handleCancelPress = () => {
+    console.log('Cancel Pressed');
+    setModalVisible(false);
+  };
+
+  const AddListInput = () => {
+    setModalVisible(true);
+  };
+
+  const SaveSection = async () => {
+    try {
+      await AsyncStorage.setItem('AccountSection', JSON.stringify(sections));
+      Alert.alert('Success', 'Data saved successfully!');
+      GatSection();
+    } catch (error) {
+      Alert.alert('Error', 'Error saving data: ' + error.message);
+    }
+  }
+
+  const GatSection = async () => {
+    try {
+      const GatSectionData = await AsyncStorage.getItem('AccountSection');
+      const GatSectionDataParce = JSON.parse(GatSectionData);
+      console.log(GatSectionDataParce);
+    } catch (error) {
+      Alert.alert('Error', 'Error retrieving data: ' + error.message);
+    }
+  }
+
   useEffect(() => {
     getData();
     const intervalId = setInterval(() => {
       getData();
+      GatSection();
     }, 5000);
     return () => {
       clearInterval(intervalId);
     };
   }, [activeSection]);
 
+
   return (
     <View style={styles.container}>
       <View style={styles.boxContent}>
-        {/* TopBar:- */}
-        <View style={styles.topBar}>
-          <Text onPress={() => navigation.navigate('Home')} style={styles.topBarLogoText}>My Book</Text>
-          <View style={styles.topBarIconsSection}>
-            {/* <Ionicons name='search' size={29} color={colors.text} style={styles.icon} /> */}
-            <AntDesign name='cloudupload' size={32} color={colors.text} style={styles.icon} onPress={()=>Alert.alert('Comming Soon','Working it.')}/>
-            <Ionicons name='menu' size={42} color={colors.text} style={styles.icon} onPress={() => navigation.navigate('SideBar')}/>
-          </View>
-        </View>
         {show ? (
-          <View style={styles.editDeletContainer}>
+          <ScrollView style={styles.editDeletContainer}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <AntDesign onPress={() => setShow(null)} name="back" size={38} color={colors.primary} />
               <AntDesign onPress={() => setEdit(!edit)} name="edit" size={38} color={colors.primary} />
@@ -257,21 +298,54 @@ export default function Home({ navigation }) {
                 <Text>Delete</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </ScrollView>
         ) : (
           <>
             {/* List:- */}
-            <View style={styles.listView}>
-              {['Loan', 'Expense', 'Income'].map(section => (
-                <TouchableOpacity
-                  key={section}
-                  onPress={() => setActiveSection(section)}
-                  style={[styles.listViewButtons, activeSection === section && styles.activelistViewButtons]}
-                >
-                  <Text style={styles.listViewText}>{`${section === 'Loan' ? 'Loan / Udhar' : section}`}</Text>
+            {/* <ScrollView horizontal showsHorizontalScrollIndicator={false}> */}
+            <ScrollView horizontal style={styles.listHorzontalScroll}>
+              <View style={styles.listView}>
+                {sections.map(section => (
+                  <TouchableOpacity
+                    key={section}
+                    onPress={() => setActiveSection(section)}
+                    // onLongPress={handleLongPress}
+                    style={[styles.listViewButtons, activeSection === section && styles.activelistViewButtons]}
+                  >
+                    <Text style={styles.listViewText}>{section}</Text>
+                  </TouchableOpacity>
+                ))}
+                <TouchableOpacity onPress={AddListInput}>
+                  <Ionicons
+                    style={{ color: colors.primary, lineHeight: 65 }}
+                    name="add-circle-sharp"
+                    size={55}
+                    color={colors.primary}
+                  />
                 </TouchableOpacity>
-              ))}
-            </View>
+
+                <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
+                  <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                      <Text style={styles.modalTitle}>Add New Account</Text>
+                      <TextInput
+                        style={styles.inputField}
+                        placeholder="Type here..."
+                        onChangeText={text => setNewSectionInput(text)}
+                      />
+                      <View style={styles.modalButtons}>
+                        <TouchableOpacity style={styles.modalButton} onPress={handleCancelPress}>
+                          <Text>Cancel</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.modalButton} onPress={handleOKPress}>
+                          <Text>OK</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </View>
+                </Modal>
+              </View>
+            </ScrollView>
             {/* filter:- */}
             <View style={styles.filterView}>
               <TextInput
@@ -295,53 +369,63 @@ export default function Home({ navigation }) {
             {/* listTitle:- */}
             <View style={styles.listTitle}>
               <Text style={styles.listTitletext}>Total {activeSection}: {totalAmount}</Text>
-              <Ionicons
-                onPress={() => setAddData(!addData)}
-                style={styles.Addbutton}
-                name="add-circle-sharp"
-                size={55}
-                color={colors.primary}
-              />
+              {addData ?
+                <Ionicons
+                  onPress={() => setAddData(!addData)}
+                  style={styles.Addbutton}
+                  name="close-circle"
+                  size={55}
+                  color={colors.primary}
+                /> :
+                <Ionicons
+                  onPress={() => setAddData(!addData)}
+                  style={styles.Addbutton}
+                  name="add-circle-sharp"
+                  size={55}
+                  color={colors.primary}
+                />}
             </View>
             {addData ? (
-              <View style={styles.AddTransaction}>
-              {/* Add Data */}
-                <Text style={styles.AddDataTitle}>Add Transaction in <Text style={{ color: 'orange' }}>{activeSection}</Text> Book</Text>
-                <View style={styles.AddDataInput}>
-                  <Text style={styles.AddDataTitle}>Party name</Text>
-                  <TextInput
-                    style={styles.InputField}
-                    placeholder="Name..."
-                    onChangeText={text => setInputValues({ ...inputValues, party: text })}
-                    value={inputValues.party}
-                  />
+              <ScrollView style={styles.AddTransaction}>
+                {/* Add Data */}
+                <View style={styles.InnerAddTransaction}>
+                  <Text style={styles.AddDataTitle}>Add Transaction in <Text style={{ color: 'orange' }}>{activeSection}</Text> Book</Text>
+                  <View style={styles.AddDataInput}>
+                    <Text style={styles.AddDataTitle}>Party name</Text>
+                    <TextInput
+                      style={styles.InputField}
+                      placeholder="Name..."
+                      onChangeText={text => setInputValues({ ...inputValues, party: text })}
+                      value={inputValues.party}
+                    />
+                  </View>
+                  <View style={styles.AddDataInput}>
+                    <Text style={styles.AddDataTitle}>Amount</Text>
+                    <TextInput
+                      style={styles.InputField}
+                      placeholder="Amount..."
+                      onChangeText={text => setInputValues({ ...inputValues, amount: text })}
+                      value={inputValues.amount}
+                      keyboardType="numeric"
+                    />
+                  </View>
+                  <View style={styles.AddDataInput}>
+                    <Text style={styles.AddDataTitle}>Description</Text>
+                    <TextInput
+                      style={[styles.InputField, { height: 6.4375 * 16 }]}
+                      placeholder="Description..."
+                      onChangeText={text => setInputValues({ ...inputValues, description: text })}
+                      value={inputValues.description}
+                    />
+                  </View>
+                  <Pressable style={styles.AddButton} onPress={saveData}>
+                    <Text style={styles.submitData}>Submit</Text>
+                  </Pressable>
                 </View>
-                <View style={styles.AddDataInput}>
-                  <Text style={styles.AddDataTitle}>Amount</Text>
-                  <TextInput
-                    style={styles.InputField}
-                    placeholder="Amount..."
-                    onChangeText={text => setInputValues({ ...inputValues, amount: text })}
-                    value={inputValues.amount}
-                    keyboardType="numeric"
-                  />
-                </View>
-                <View style={styles.AddDataInput}>
-                  <Text style={styles.AddDataTitle}>Description</Text>
-                  <TextInput
-                    style={[styles.InputField, { height: 6.4375 * 16 }]}
-                    placeholder="Description..."
-                    onChangeText={text => setInputValues({ ...inputValues, description: text })}
-                    value={inputValues.description}
-                  />
-                </View>
-                <Pressable style={styles.AddButton} onPress={saveData}>
-                  <Text style={styles.submitData}>Submit</Text>
-                </Pressable>
-              </View>
+              </ScrollView>
             ) : (
               <ScrollView>
-              {/* List */}
+                {/* List */}
                 <View style={styles.list}>
                   <FlatList
                     data={applyFilter(data, filterCriteria, filterKeyword)}
@@ -370,10 +454,10 @@ export default function Home({ navigation }) {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
-    display: 'flex',
-    paddingVertical: 16,
+    flex: 1,
     height: '100%',
     backgroundColor: colors.background,
     alignItems: 'flex-start',
@@ -381,51 +465,20 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   boxContent: {
-    display: 'flex',
+    flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     gap: 0.3875 * 16,
     flexShrink: 0,
   },
-  //TopBar:-
-  topBar: {
-    flexDirection: 'row',
-    width: '100%',
-    height: 68,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexShrink: 0,
-    borderBottomWidth: 0.5,
-    borderBottomColor: colors.text,
-    borderBottomStyle: 'solid',
-    shadowColor: 'rgba(0, 0, 0, 100)',
-    backgroundColor: colors.background,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 5,
-    shadowRadius: 4,
-    elevation: 12,
-  },
-  topBarLogoText: {
-    color: colors.primary,
-    textAlign: 'left',
-    paddingLeft: 10,
-    fontSize: 20,
-    fontWeight: '600',
-  },
-  topBarIconsSection: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 0.9375 * 16,
-  },
-  icon: {},
   //List:-
+  listHorzontalScroll: {
+    height: 70,
+  },
   listView: {
     display: 'flex',
     flexDirection: 'row',
-    // paddingVertical: 0.3125 * 16,
     paddingHorizontal: 0,
     justifyContent: 'space-between',
     alignItems: 'flex-start',
@@ -433,15 +486,12 @@ const styles = StyleSheet.create({
   },
   listViewButtons: {
     display: 'flex',
-    // flexGrow: 1,
-    // flexShrink: 0,
-    // flexBasis: 0,
     padding: 0.625 * 16,
     margin: 10,
     justifyContent: 'space-between',
     alignItems: 'center',
     borderRadius: 18,
-    backgroundColor: colors.background,
+    backgroundColor: colors.text,
     shadowColor: 'rgba(0, 0, 0, 1)',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 100,
@@ -452,7 +502,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   listViewText: {
-    color: colors.text,
+    color: colors.background,
     textAlign: 'center',
     fontSize: 18,
     fontWeight: '500',
@@ -461,8 +511,8 @@ const styles = StyleSheet.create({
   filterView: {
     display: 'flex',
     flexDirection: 'row',
-    // padding: 15,
     flexShrink: 0,
+    // marginTop:-475,
     alignItems: 'flex-start',
     justifyContent: 'space-between',
   },
@@ -499,15 +549,17 @@ const styles = StyleSheet.create({
   listTitletext: {
     color: colors.text,
     textAlign: 'center',
-    // fontFamily: 'Inter',
-    fontSize: 20,
+    fontSize: 18,
     fontStyle: 'normal',
     fontWeight: '500',
-    lineHeight: 18,
+    lineHeight: 55,
   },
   //list:-
   list: {
-    display: 'flex',
+    flex: 1,
+    minHeight: height * 0.7,
+    // height: 'auto',
+    width: 'auto',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'flex-start',
@@ -568,10 +620,15 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   AddTransaction: {
+    display: 'flex',
+    flexDirection: 'column',
+    marginVertical: 2.125 * 16,
+    gap: 1 * 16,
+  },
+  InnerAddTransaction: {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: 2.125 * 16,
     gap: 1 * 16,
   },
   AddDataInput: {
@@ -614,6 +671,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   editDeletContainer: {
+    display: 'flex',
+    flexDirection: 'column',
     marginTop: 25,
   },
   box: {
@@ -628,5 +687,44 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     margin: 10
+  },
+
+
+  modalContainer: {
+    flex: 1,
+    paddingHorizontal: '10%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  inputField: {
+    height: 40,
+    width: 250,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 18,
+    paddingHorizontal: 10,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
+  modalButton: {
+    padding: 10,
+    borderRadius: 5,
+    fontWeight: 'bold',
+    backgroundColor: colors.primary,
   },
 });

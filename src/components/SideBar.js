@@ -7,22 +7,14 @@ import {
 } from 'react-native';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import colors from '../../assets/colors';
+import TopBar from './TopBar';
 
-export default function SideBar({ navigation }) {
+export default function SideBar() {
   return (
     <>
       <View style={styles.container}>
         <View style={styles.boxContent}>
-          {/* TopBar:- */}
-          <View style={styles.topBar}>
-            <Text onPress={() => navigation.navigate('Home')} style={styles.topBarLogoText}>Manage Business</Text>
-            <View style={styles.topBarIconsSection}>
-              {/* <Ionicons name='search' size={29} color={colors.text} style={styles.icon} /> */}
-              <AntDesign name='cloudupload' size={32} color={colors.text} style={styles.icon} onPress={() => Alert.alert('Comming Soon', 'Working it.')} />
-              <Ionicons name='menu' size={42} color={colors.text} style={styles.icon} onPress={() => navigation.navigate('SideBar')} />
-            </View>
-          </View>
-          <View style={{ flexDirection: 'column', gap: 5,textAlign:'center' }}>
+          <View style={{ flexDirection: 'column', gap: 5, textAlign: 'center' }}>
             <Text style={{ color: '#fff', fontWeight: 'bold' }}>Note:</Text>
             <Text style={{ color: '#fff', fontWeight: 'bold' }}>Introducing My Book Accounting App! </Text>
             <Text style={{ color: '#fff' }}>This app, designed by Mritunjay Kumar, is here to make your life easier! It's a special tool created to help everyone manage their daily accounting effortlessly.</Text>
@@ -57,7 +49,7 @@ const styles = StyleSheet.create({
   container: {
     display: 'flex',
     paddingVertical: 16,
-    paddingHorizontal:8,
+    paddingHorizontal: 8,
     height: '100%',
     backgroundColor: colors.background,
   },

@@ -35,7 +35,7 @@ const applyFilter = (data, filterCriteria, filterKeyword) => {
 const { height, width } = Dimensions.get('window');
 
 export default function Home() {
-  // const [sections, setSections] = useState(['Loan', 'Udhar', 'Expense', 'Income']);
+  const [sections, setSections] = useState(['Loan', 'Udhar', 'Expense', 'Income']);
   const [account, setAccount] = useState([]);
   const [activeSection, setActiveSection] = useState('Loan');
   const [filterCriteria, setFilterCriteria] = useState('party');
@@ -170,7 +170,7 @@ export default function Home() {
 
   const handleOKPress = () => {
     if (newSectionInput.trim() !== '') {
-      setAccount(prevSections => {
+      setSections(prevSections => {
         const updatedSections = [...prevSections, newSectionInput];
         setActiveSection(newSectionInput);
         SaveSection(updatedSections);
@@ -234,7 +234,7 @@ export default function Home() {
     try {
       const GatSectionData = await AsyncStorage.getItem('AccountSection');
       const GatSectionDataParce = JSON.parse(GatSectionData);
-      setAccount(GatSectionDataParce || []);  // Handle the case where data is null
+      setAccount(GatSectionDataParce)
     } catch (error) {
       Alert.alert('Error', 'Error retrieving data: ' + error.message);
     }
@@ -338,10 +338,9 @@ export default function Home() {
             {/* <ScrollView horizontal showsHorizontalScrollIndicator={false}> */}
             <ScrollView horizontal style={styles.listHorzontalScroll}>
               <View style={styles.listView}>
-                {[...['Loan', 'Udhar', 'Expense', 'Income'], ...account].map((section, index) => (
+                {account.map(section => (
                   <TouchableOpacity
-                    // key={section}
-                    key={index.toString()}
+                    key={section}
                     onPress={() => setActiveSection(section)}
                     onLongPress={() => DelitAccount(section)}
                     style={[styles.listViewButtons, activeSection === section && styles.activelistViewButtons]}

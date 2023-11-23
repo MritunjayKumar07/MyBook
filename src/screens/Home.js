@@ -35,8 +35,7 @@ const applyFilter = (data, filterCriteria, filterKeyword) => {
 const { height, width } = Dimensions.get('window');
 
 export default function Home() {
-  // const [sections, setSections] = useState(['Loan', 'Udhar', 'Expense', 'Income']);
-  const [account, setAccount] = useState([]);
+  const [account, setAccount] = useState(['Loan', 'Udhar', 'Expense', 'Income']);
   const [activeSection, setActiveSection] = useState('Loan');
   const [filterCriteria, setFilterCriteria] = useState('party');
   const [filterKeyword, setFilterKeyword] = useState('');
@@ -194,7 +193,7 @@ export default function Home() {
 
   const SaveSection = async (updatedSections) => {
     try {
-      await AsyncStorage.setItem('AccountSection', JSON.stringify(updatedSections));
+      await AsyncStorage.setItem('Account', JSON.stringify(updatedSections));
       Alert.alert('Success', 'Data saved successfully!');
       GatSection();
     } catch (error) {
@@ -203,45 +202,63 @@ export default function Home() {
   }
 
   const DelitAccount = (section) => {
-    Alert.alert(
-      'Confirm',
-      `Do you really want to delete the ${section} section?`,
-      [
-        {
-          text: 'Cancel',
-          onPress: () => {
-            console.log('Cancel delete operation...');
+    const protectedSections = ['Loan', 'Udhar', 'Expense', 'Income'];
+    if (protectedSections.includes(section)) {
+      Alert.alert('Error', `${section} is a protected section and cannot be deleted.`);
+      return;
+    } else {
+      Alert.alert(
+        'Confirm',
+        `Do you really want to delete the ${section} section?`,
+        [
+          {
+            text: 'Cancel',
+            onPress: () => {
+              console.log('Cancel delete operation...');
+            },
           },
-        },
-        {
-          text: 'OK',
-          onPress: async () => {
-            try {
-              const updatedSections = account.filter(item => item !== section);
-              await AsyncStorage.setItem('AccountSection', JSON.stringify(updatedSections));
-              Alert.alert('Success', 'Section deleted successfully!');
-              GatSection();
-            } catch (error) {
-              console.error('Error deleting section: ', error);
-            }
+          {
+            text: 'OK',
+            onPress: async () => {
+              try {
+                const storedAccountData = await AsyncStorage.getItem('Account');
+                if (storedAccountData) {
+                  const parsedAccountData = JSON.parse(storedAccountData);
+                  let filteredArray = parsedAccountData.filter((item) => item !== section);
+                  // console.log(filteredArray)
+                  await AsyncStorage.setItem('Account', JSON.stringify(filteredArray));
+                  Alert.alert('Success', 'Section deleted successfully!');
+                  GatSection();
+                }
+              } catch (error) {
+                console.error('Error deleting section: ', error);
+              }
+            },
           },
-        },
-      ]
-    );
+        ]
+      );
+    }
+
   };
 
   const GatSection = async () => {
     try {
-      const GatSectionData = await AsyncStorage.getItem('AccountSection');
-      const GatSectionDataParce = JSON.parse(GatSectionData);
-      setAccount(GatSectionDataParce || []);  // Handle the case where data is null
+      const GatSectionData = await AsyncStorage.getItem('Account');
+      if (GatSectionData !== null) {
+        console.log('GatSectionData:', GatSectionData);
+        const GatSectionDataParce = JSON.parse(GatSectionData);
+        setAccount(GatSectionDataParce || []);
+      } else{
+        setAccount([]);
+      }
     } catch (error) {
-      Alert.alert('Error', 'Error retrieving data: ' + error.message);
+      Alert.alert('Error', 'Error retrieving data from GatSection: ' + error.message);
     }
   }
 
   useEffect(() => {
     getData();
+    GatSection();
     const intervalId = setInterval(() => {
       getData();
       GatSection();
@@ -338,7 +355,7 @@ export default function Home() {
             {/* <ScrollView horizontal showsHorizontalScrollIndicator={false}> */}
             <ScrollView horizontal style={styles.listHorzontalScroll}>
               <View style={styles.listView}>
-                {[...['Loan', 'Udhar', 'Expense', 'Income'], ...account].map((section, index) => (
+                {[...account].map((section, index) => (
                   <TouchableOpacity
                     // key={section}
                     key={index.toString()}

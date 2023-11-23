@@ -34,7 +34,8 @@ const applyFilter = (data, filterCriteria, filterKeyword) => {
 };
 const { height, width } = Dimensions.get('window');
 
-export default function Home() {
+export default function Home({ route }) {
+  const { params } = route;
   const [account, setAccount] = useState(['Loan', 'Udhar', 'Expense', 'Income']);
   const [activeSection, setActiveSection] = useState('Loan');
   const [filterCriteria, setFilterCriteria] = useState('party');
@@ -245,10 +246,10 @@ export default function Home() {
     try {
       const GatSectionData = await AsyncStorage.getItem('Account');
       if (GatSectionData !== null) {
-        console.log('GatSectionData:', GatSectionData);
+        // console.log('GatSectionData:', GatSectionData);
         const GatSectionDataParce = JSON.parse(GatSectionData);
         setAccount(GatSectionDataParce || []);
-      } else{
+      } else {
         setAccount([]);
       }
     } catch (error) {
@@ -257,6 +258,9 @@ export default function Home() {
   }
 
   useEffect(() => {
+    if (params && params.activeSectionBySearch) {
+      setActiveSection(params.activeSectionBySearch);
+    }
     getData();
     GatSection();
     const intervalId = setInterval(() => {
@@ -266,7 +270,7 @@ export default function Home() {
     return () => {
       clearInterval(intervalId);
     };
-  }, [activeSection]);
+  }, [activeSection, params]);
 
 
   return (

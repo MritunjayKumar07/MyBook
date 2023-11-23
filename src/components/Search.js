@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TextInput, FlatList, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TextInput, FlatList, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
 import colors from '../../assets/colors';
+// import searchGif from '../../assets/searchingGIF.gif';
 import { useNavigation } from '@react-navigation/native';
 import { SearchKeyWordData, addSearchKeyword, deleteSearchKeyword } from '../Data/SearchKeyWordData';
+
+const { height, width } = Dimensions.get('window');
 
 export default function Search() {
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -28,6 +31,11 @@ export default function Search() {
     setSearchResults(updatedData);
   };
 
+  const navigatePage = (GoSearchResults, activeBySearch) => {
+    navigation.navigate(GoSearchResults, { activeSectionBySearch: activeBySearch });
+    // navigation.navigate(GoSearchResults);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.boxContent}>
@@ -51,16 +59,22 @@ export default function Search() {
           </View>
         </View>
         <ScrollView>
-          <FlatList
-            data={searchResults}
-            keyExtractor={item => item.id.toString()}
-            renderItem={({ item }) => (
-              <TouchableOpacity style={styles.resultItem} onPress={() => navigation.navigate(item.press)}>
-                <Text style={styles.name}>{item.name}</Text>
-                <Text style={styles.description}>{item.description}</Text>
-              </TouchableOpacity>
+          <View style={{ display: 'flex', justifyContent: 'center' }}>
+            {searchKeyword.length > 0 ? (
+              <FlatList
+                data={searchResults}
+                keyExtractor={item => item.id.toString()}
+                renderItem={({ item }) => (
+                  <TouchableOpacity style={styles.resultItem} onPress={() => navigatePage(item.press, item.activeBySearch)}>
+                    <Text style={styles.name}>{`${item.press} > ${item.name}`}</Text>
+                    <Text style={styles.description}>{item.description}</Text>
+                  </TouchableOpacity>
+                )}
+              />
+            ) : (
+              <Image source={require('../../assets/searchingGIF.gif')} style={styles.gifImage} />
             )}
-          />
+          </View>
         </ScrollView>
       </View>
     </View>
@@ -69,57 +83,61 @@ export default function Search() {
 
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        paddingVertical: 16,
-        paddingHorizontal: 8,
-        height: '100%',
-        backgroundColor: colors.background,
-    },
-    boxContent: {
-        gap: 0.3875 * 16,
-        flexShrink: 0,
-    },
-    filterView: {
-        display: 'flex',
-        flexDirection: 'row',
-        flexShrink: 0,
-        alignItems: 'flex-start',
-        justifyContent: 'space-between',
-    },
-    filterInput: {
-        margin: 5,
-        height: 40,
-        borderRadius: 0.5 * 16,
-        backgroundColor: colors.text,
-        paddingLeft: 10,
-        flexGrow: 1,
-        flexShrink: 0,
-        flexBasis: 0,
-    },
-    filterPicker: {
-        width: 130,
-        height: 40,
-        marginVertical: 5,
-        borderRadius: 10,
-        backgroundColor: colors.text,
-    },
-    Picker: {
-        lineHeight: 40,
-    },
-    resultItem: {
-        flexDirection: 'column',
-        borderRadius: 12,
-        marginLeft:15,
-        marginVertical:7,
-    },
-    name: {
-        color: colors.text,
-        fontSize: 15,
-        fontWeight: 'bold',
-    },
-    description: {
-        color: colors.text,
-        fontSize: 14,
-    }
+  container: {
+    flex: 1,
+    paddingVertical: 16,
+    paddingHorizontal: 8,
+    height: '100%',
+    backgroundColor: colors.background,
+  },
+  boxContent: {
+    gap: 0.3875 * 16,
+    flexShrink: 0,
+  },
+  filterView: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexShrink: 0,
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+  },
+  filterInput: {
+    margin: 5,
+    height: 40,
+    borderRadius: 0.5 * 16,
+    backgroundColor: colors.text,
+    paddingLeft: 10,
+    flexGrow: 1,
+    flexShrink: 0,
+    flexBasis: 0,
+  },
+  filterPicker: {
+    width: 130,
+    height: 40,
+    marginVertical: 5,
+    borderRadius: 10,
+    backgroundColor: colors.text,
+  },
+  Picker: {
+    lineHeight: 40,
+  },
+  resultItem: {
+    flexDirection: 'column',
+    borderRadius: 12,
+    marginLeft: 15,
+    marginVertical: 7,
+  },
+  name: {
+    color: colors.text,
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+  description: {
+    color: colors.text,
+    fontSize: 14,
+  },
+  gifImage: {
+    width: width * 1,
+    height: height * 0.4,
+  }
 });

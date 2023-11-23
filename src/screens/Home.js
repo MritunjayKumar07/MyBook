@@ -16,6 +16,7 @@ import { Picker } from '@react-native-picker/picker';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import colors from '../../assets/colors';
+import { SearchKeyWordData, addSearchKeyword, deleteSearchKeyword } from '../Data/SearchKeyWordData';
 
 
 const applyFilter = (data, filterCriteria, filterKeyword) => {
@@ -36,6 +37,7 @@ const { height, width } = Dimensions.get('window');
 
 export default function Home({ route }) {
   const { params } = route;
+  const [newSectionInput, setNewSectionInput] = useState('');
   const [account, setAccount] = useState(['Loan', 'Udhar', 'Expense', 'Income']);
   const [activeSection, setActiveSection] = useState('Loan');
   const [filterCriteria, setFilterCriteria] = useState('party');
@@ -50,9 +52,27 @@ export default function Home({ route }) {
     amount: '',
     description: '',
   });
-  const [newSectionInput, setNewSectionInput] = useState('');
 
+  //Add Delit Search:-
+  const addSearchItem = (searchItem) => {
+    try {
+      const existingSearchData = SearchKeyWordData || []; // Ensure it's an array or initialize as an empty array
+      const newItem = {
+        id: existingSearchData.length > 0 ? Math.max(...existingSearchData.map(item => item.id)) + 1 : 1,
+        name: searchItem.name,
+        description: searchItem.description,
+        press: searchItem.press,
+        activeBySearch: searchItem.activeBySearch,
+      };
+      // addSearchKeyword(SearchKeyWordData, newItem);
+      console.log(SearchKeyWordData)
+      console.log(newItem)
+    } catch (error) {
+      console.error('Error adding search item: ', error);
+    }
+  };
 
+  //Add Data
   const generateUniqueId = () => {
     return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
   };
@@ -168,6 +188,7 @@ export default function Home({ route }) {
 
   const totalAmount = calculateTotalAmount(data);
 
+  //Add Section/Account Data:-
   const handleOKPress = () => {
     if (newSectionInput.trim() !== '') {
       setAccount(prevSections => {
@@ -195,6 +216,13 @@ export default function Home({ route }) {
   const SaveSection = async (updatedSections) => {
     try {
       await AsyncStorage.setItem('Account', JSON.stringify(updatedSections));
+      //Add Search Value
+      addSearchItem({
+        name: updatedSections[updatedSections.length - 1],
+        description: `Search for ${updatedSections[updatedSections.length - 1]}`,
+        press: 'Home',
+        activeBySearch: updatedSections[updatedSections.length - 1],
+      });
       Alert.alert('Success', 'Data saved successfully!');
       GatSection();
     } catch (error) {

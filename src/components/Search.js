@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TextInput, FlatList, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
 import colors from '../../assets/colors';
-// import searchGif from '../../assets/searchingGIF.gif';
 import { useNavigation } from '@react-navigation/native';
 import { SearchKeyWordData, addSearchKeyword, deleteSearchKeyword } from '../Data/SearchKeyWordData';
 

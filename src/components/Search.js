@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TextInput, FlatList, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, TextInput, FlatList, ScrollView, TouchableOpacity, Image, Dimensions,SafeAreaView } from 'react-native';
 import colors from '../../assets/colors';
 import { useNavigation } from '@react-navigation/native';
 import { SearchKeyWordData } from '../Data/SearchKeyWordData';
@@ -24,7 +24,7 @@ export default function Search() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.boxContent}>
         <View style={styles.filterView}>
           <TextInput
@@ -62,7 +62,7 @@ export default function Search() {
           )}
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 

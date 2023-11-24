@@ -1,11 +1,11 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ImageBackground } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ImageBackground, SafeAreaView } from 'react-native';
 import colors from '../../assets/colors';
 
 const Page = () => {
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <View style={styles.inner}>
                 <ImageBackground
                     source={require('../../assets/Screen1Img.png')}
@@ -21,7 +21,7 @@ const Page = () => {
                 </View>
                 
             </View>
-        </View>
+        </SafeAreaView>
     );
 };
 

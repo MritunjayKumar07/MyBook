@@ -35,11 +35,9 @@ const styles = StyleSheet.create({
 
     bottomNavigation: {
         display: 'flex',
-        borderRadius: 50,
+        borderRadius: 12,
         flexDirection: 'row',
         backgroundColor: colors.text,
-        position: 'fixed',
-        bottom: 0,
         width: '100%',
         justifyContent: 'space-evenly',
         alignItems: 'center',

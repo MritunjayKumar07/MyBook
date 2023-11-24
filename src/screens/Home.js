@@ -10,12 +10,14 @@ import {
   FlatList,
   ScrollView,
   Dimensions,
-  Modal
+  Modal,
+  SafeAreaView,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import colors from '../../assets/colors';
+import { useNavigation } from '@react-navigation/native';
 import { SearchKeyWordData, addSearchKeyword, deleteSearchKeyword } from '../Data/SearchKeyWordData';
 
 
@@ -37,6 +39,7 @@ const { height, width } = Dimensions.get('window');
 
 export default function Home({ route }) {
   const { params } = route;
+  const navigation = useNavigation();
   const [newSectionInput, setNewSectionInput] = useState('');
   const [account, setAccount] = useState(['Loan', 'Udhar', 'Expense', 'Income']);
   const [activeSection, setActiveSection] = useState('Loan');
@@ -156,6 +159,7 @@ export default function Home({ route }) {
           // Reset input values and show a success message
           setInputValues({ party: '', amount: '', description: '' });
           setShow(null);
+          setEdit(true)
           Alert.alert('Success', 'Data updated successfully!');
         } else {
           Alert.alert('Error', 'Item not found.');
@@ -307,83 +311,91 @@ export default function Home({ route }) {
 
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.boxContent}>
         {show ? (
           <ScrollView style={styles.editDeletContainer}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <AntDesign onPress={() => setShow(null)} name="back" size={38} color={colors.primary} />
-              <AntDesign onPress={() => setEdit(!edit)} name="edit" size={38} color={colors.primary} />
-            </View>
-            <View style={styles.box}>
-              <Text style={styles.AddDataTitle}>Date</Text>
-              <View style={[styles.InputField, { flexDirection: 'row' }]}>
-                <Text style={{ color: colors.background }}>{show.date}</Text>
+            <View style={{ width: width * 1, }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <AntDesign onPress={() => { setShow(null); setEdit(true); }} name="back" size={38} color={colors.primary} />
               </View>
-            </View>
-            <View style={styles.box}>
-              <Text style={styles.AddDataTitle}>Time</Text>
-              <View style={[styles.InputField, { flexDirection: 'row' }]}>
-                <Text style={{ color: colors.background }}>{show.time}</Text>
+              <View style={styles.box}>
+                <Text style={styles.AddDataTitle}>Date</Text>
+                <View style={[styles.InputField, { flexDirection: 'row' }]}>
+                  <Text style={{ color: colors.background }}>{show.date}</Text>
+                </View>
               </View>
-            </View>
-            <View style={styles.box}>
-              <Text style={styles.AddDataTitle}>Party Name</Text>
-              <View style={[styles.InputField, { flexDirection: 'row', justifyContent: 'space-between' }]}>
-                {edit ? (
-                  <Text style={{ color: colors.background }}>{show.party}</Text>
-                ) : (
-                  <TextInput
-                    placeholder="Party name..."
-                    onChangeText={text => setInputValues({ ...inputValues, party: text })}
-                    value={inputValues.party}
-                  />
-                )}
+              <View style={styles.box}>
+                <Text style={styles.AddDataTitle}>Time</Text>
+                <View style={[styles.InputField, { flexDirection: 'row' }]}>
+                  <Text style={{ color: colors.background }}>{show.time}</Text>
+                </View>
               </View>
-            </View>
-            <View style={styles.box}>
-              <Text style={styles.AddDataTitle}>Amount</Text>
-              <View style={[styles.InputField, { flexDirection: 'row', justifyContent: 'space-between' }]}>
-                {edit ? (
-                  <Text style={{ color: colors.background }}>{show.amount}</Text>
-                ) : (
-                  <TextInput
-                    placeholder="Amount..."
-                    onChangeText={text => setInputValues({ ...inputValues, amount: text })}
-                    value={inputValues.amount}
-                    keyboardType="numeric"
-                  />
-                )}
+              <View style={styles.box}>
+                <Text style={styles.AddDataTitle}>Party Name</Text>
+                <View style={[styles.InputField, { flexDirection: 'row', justifyContent: 'space-between' }]}>
+                  {edit ? (
+                    <Text style={{ color: colors.background }}>{show.party}</Text>
+                  ) : (
+                    <TextInput
+                      placeholder="Party name..."
+                      onChangeText={text => setInputValues({ ...inputValues, party: text })}
+                      value={inputValues.party}
+                    />
+                  )}
+                </View>
               </View>
-            </View>
-            <View style={styles.box}>
-              <Text style={styles.AddDataTitle}>Description</Text>
-              <View style={[styles.InputField, { height: 150, flexDirection: 'row', justifyContent: 'space-between' }]}>
-                {edit ? (
-                  <Text style={{ color: colors.background }}>{show.description}</Text>
-                ) : (
-                  <TextInput
-                    style={[{ height: 6.4375 * 16 }]}
-                    placeholder="Description..."
-                    onChangeText={text => setInputValues({ ...inputValues, description: text })}
-                    value={inputValues.description}
-                  />
-                )}
+              <View style={styles.box}>
+                <Text style={styles.AddDataTitle}>Amount</Text>
+                <View style={[styles.InputField, { flexDirection: 'row', justifyContent: 'space-between' }]}>
+                  {edit ? (
+                    <Text style={{ color: colors.background }}>{show.amount}</Text>
+                  ) : (
+                    <TextInput
+                      placeholder="Amount..."
+                      onChangeText={text => setInputValues({ ...inputValues, amount: text })}
+                      value={inputValues.amount}
+                      keyboardType="numeric"
+                    />
+                  )}
+                </View>
               </View>
-            </View>
-            <View style={styles.boxSubmit}>
-              <TouchableOpacity
-                style={[styles.AddButton, { backgroundColor: '#7AEA36' }]}
-                onPress={() => editItem(show.id)}
-              >
-                <Text>Edit</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.AddButton, { backgroundColor: '#F26F53' }]}
-                onPress={() => deleteItem(show.id)}
-              >
-                <Text>Delete</Text>
-              </TouchableOpacity>
+              <View style={styles.box}>
+                <Text style={styles.AddDataTitle}>Description</Text>
+                <View style={[styles.InputField, { height: 150, flexDirection: 'row', justifyContent: 'space-between' }]}>
+                  {edit ? (
+                    <Text style={{ color: colors.background }}>{show.description}</Text>
+                  ) : (
+                    <TextInput
+                      style={[styles.InputField, { height: 6.4375 * 16, width: '100%', }]}
+                      placeholder="Description..."
+                      onChangeText={text => setInputValues({ ...inputValues, description: text })}
+                      value={inputValues.description}
+                    />
+                  )}
+                </View>
+              </View>
+              <View style={styles.boxSubmit}>
+                {edit ? <TouchableOpacity
+                  style={[styles.AddButton, { backgroundColor: '#7AEA36' }]}
+                  onPress={() => setEdit(!edit)}
+                >
+                  <Text>Edit</Text>
+                </TouchableOpacity> :
+                  <TouchableOpacity
+                    style={[styles.AddButton, { backgroundColor: '#7AEA36' }]}
+                    onPress={() => editItem(show.id)}
+                  >
+                    <Text>Submit</Text>
+                  </TouchableOpacity>}
+
+                <TouchableOpacity
+                  style={[styles.AddButton, { backgroundColor: '#F26F53' }]}
+                  onPress={() => deleteItem(show.id)}
+                >
+                  <Text>Delete</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </ScrollView>
         ) : (
@@ -405,7 +417,7 @@ export default function Home({ route }) {
                 ))}
                 <TouchableOpacity onPress={AddListInput}>
                   <Ionicons
-                    style={{ color: colors.primary, lineHeight: 65 }}
+                    style={{ color: colors.primary, lineHeight: 53 }}
                     name="add-circle-sharp"
                     size={55}
                     color={colors.primary}
@@ -515,31 +527,28 @@ export default function Home({ route }) {
               <ScrollView>
                 {/* List */}
                 <View style={styles.list}>
-                  <FlatList
-                    data={applyFilter(data, filterCriteria, filterKeyword)}
-                    renderItem={({ item }) => (
-                      <TouchableOpacity onPress={() => setShow(item)} style={styles.singleList}>
-                        <View style={styles.DateTime}>
-                          <View style={styles.DateText}>
-                            <Text style={styles.listText}>Date : {item.date}</Text>
-                          </View>
-                          <View style={styles.TimeText}>
-                            <Text style={styles.listText}>Time : {item.time}</Text>
-                          </View>
+                  {applyFilter(data, filterCriteria, filterKeyword).map(item => (
+                    <TouchableOpacity onPress={() => setShow(item)} style={styles.singleList} key={item.id}>
+                      {/* <TouchableOpacity onPress={() => setShow(item)} style={styles.singleList} key={item.id}> */}
+                      <View style={styles.DateTime}>
+                        <View style={styles.DateText}>
+                          <Text style={styles.listText}>Date : {item.date}</Text>
                         </View>
-                        <Text style={styles.listText}>Name : {item.party}</Text>
-                        <Text style={styles.listText}>Amount : {item.amount}</Text>
-                      </TouchableOpacity>
-                    )}
-                    keyExtractor={item => item.id.toString()}
-                  />
+                        <View style={styles.TimeText}>
+                          <Text style={styles.listText}>Time : {item.time}</Text>
+                        </View>
+                      </View>
+                      <Text style={styles.listText}>Name : {item.party}</Text>
+                      <Text style={styles.listText}>Amount : {item.amount}</Text>
+                    </TouchableOpacity>
+                  ))}
                 </View>
               </ScrollView>
             )}
           </>
         )}
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -562,7 +571,7 @@ const styles = StyleSheet.create({
   },
   //List:-
   listHorzontalScroll: {
-    height: 70,
+    height: height * 0.1,
   },
   listView: {
     display: 'flex',
@@ -571,11 +580,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     flexShrink: 0,
+    height: height * 0.1,
   },
   listViewButtons: {
     display: 'flex',
     padding: 0.625 * 16,
-    margin: 10,
+    marginHorizontal: 5,
+    marginVertical: 3,
+    lineHeight: height * 0.1,
     justifyContent: 'space-between',
     alignItems: 'center',
     borderRadius: 18,

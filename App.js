@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StatusBar } from 'react-native';
+import { StatusBar, Keyboard, Platform  } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
@@ -13,6 +13,7 @@ import Search from './src/components/Search';
 import BottomNavigation from './src/components/BottomNavigation';
 import TopBar from './src/components/TopBar';
 import colors from './assets/colors';
+import Transaction from './src/components/EditDeletTransaction';
 
 const Stack = createStackNavigator();
 
@@ -23,12 +24,14 @@ function ScreensStack() {
       <Stack.Screen name="Page" component={Page} options={{ headerShown: false }} />
       <Stack.Screen name="SideBar" component={SideBar} options={{ headerShown: false }} />
       <Stack.Screen name="Search" component={Search} options={{ headerShown: false }} />
+      <Stack.Screen name="Transaction" component={Transaction} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 }
 
 export default function App() {
   const [isAppReady, setAppReady] = useState(false);
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -36,6 +39,28 @@ export default function App() {
       setAppReady(true);
     };
     initializeApp();
+
+    const keyboardDidShowListener = Keyboard.addListener(
+      Platform.OS === 'android' ? 'keyboardDidShow' : 'keyboardWillShow',
+      () => {
+        setIsKeyboardOpen(true);
+      }
+    );
+
+    const keyboardDidHideListener = Keyboard.addListener(
+      Platform.OS === 'android' ? 'keyboardDidHide' : 'keyboardWillHide',
+      () => {
+        setIsKeyboardOpen(false);
+      }
+    );
+
+    // Clean up listeners when the component unmounts
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+
+
   }, []);
 
   if (!isAppReady) {
@@ -47,7 +72,7 @@ export default function App() {
       <StatusBar translucent backgroundColor={colors.primary} color={colors.text} />
       <TopBar />
       <ScreensStack />
-      <BottomNavigation />
+      {isKeyboardOpen ?  null:<BottomNavigation />}
     </NavigationContainer>
   );
 }

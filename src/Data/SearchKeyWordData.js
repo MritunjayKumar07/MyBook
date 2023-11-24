@@ -6,12 +6,3 @@ export const SearchKeyWordData = [
     { id: 5, name: 'Expense', description: 'Expense Account', press:'Home',activeBySearch:'Expense' },
     { id: 6, name: 'Income', description: 'Income Account', press:'Home',activeBySearch:'Income' },
 ];
-
-
-export const addSearchKeyword = (data, newItem) => {
-    return [...data, newItem];
-  };
-  
-  export const deleteSearchKeyword = (data, itemId) => {
-    return data.filter(item => item.id !== itemId);
-  };

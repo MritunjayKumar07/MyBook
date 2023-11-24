@@ -64,9 +64,10 @@ export default function Home({ route }) {
         press: searchItem.press,
         activeBySearch: searchItem.activeBySearch,
       };
-      // addSearchKeyword(SearchKeyWordData, newItem);
-      console.log(SearchKeyWordData)
-      console.log(newItem)
+      const updatedData = [...existingSearchData, newItem];
+      // Replace the old array with the new one
+      SearchKeyWordData.length = 0; // Clear the existing array
+      Array.prototype.push.apply(SearchKeyWordData, updatedData);  // Add new data to the existing array
     } catch (error) {
       console.error('Error adding search item: ', error);
     }
@@ -254,9 +255,13 @@ export default function Home({ route }) {
                 if (storedAccountData) {
                   const parsedAccountData = JSON.parse(storedAccountData);
                   let filteredArray = parsedAccountData.filter((item) => item !== section);
-                  // console.log(filteredArray)
                   await AsyncStorage.setItem('Account', JSON.stringify(filteredArray));
                   Alert.alert('Success', 'Section deleted successfully!');
+                  //Delite from Search:-
+                  const updatedSearchKeyWordData = SearchKeyWordData.filter(item => item.name !== section);
+                  // Replace the old array with the new one
+                  SearchKeyWordData.length = 0; // Clear the existing array
+                  Array.prototype.push.apply(SearchKeyWordData, updatedSearchKeyWordData);  // Add new data to the existing array
                   GatSection();
                 }
               } catch (error) {

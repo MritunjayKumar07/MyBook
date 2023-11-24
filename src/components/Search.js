@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TextInput, FlatList, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
 import colors from '../../assets/colors';
 import { useNavigation } from '@react-navigation/native';
-import { SearchKeyWordData, addSearchKeyword, deleteSearchKeyword } from '../Data/SearchKeyWordData';
+import { SearchKeyWordData } from '../Data/SearchKeyWordData';
 
 const { height, width } = Dimensions.get('window');
 
@@ -17,18 +17,6 @@ export default function Search() {
     );
     setSearchResults(filteredData);
   }, [searchKeyword]);
-
-  const addNewKeyword = newItem => {
-    // Add a new keyword to the data
-    const updatedData = addSearchKeyword(SearchKeyWordData, newItem);
-    setSearchResults(updatedData);
-  };
-
-  const deleteKeyword = itemId => {
-    // Delete a keyword from the data
-    const updatedData = deleteSearchKeyword(SearchKeyWordData, itemId);
-    setSearchResults(updatedData);
-  };
 
   const navigatePage = (GoSearchResults, activeBySearch) => {
     navigation.navigate(GoSearchResults, { activeSectionBySearch: activeBySearch });
@@ -57,24 +45,22 @@ export default function Search() {
               ]}>Search</Text>
           </View>
         </View>
-        <ScrollView>
-          <View style={{ display: 'flex', justifyContent: 'center' }}>
-            {searchKeyword.length > 0 ? (
-              <FlatList
-                data={searchResults}
-                keyExtractor={item => item.id.toString()}
-                renderItem={({ item }) => (
-                  <TouchableOpacity style={styles.resultItem} onPress={() => navigatePage(item.press, item.activeBySearch)}>
-                    <Text style={styles.name}>{`${item.press} > ${item.name}`}</Text>
-                    <Text style={styles.description}>{item.description}</Text>
-                  </TouchableOpacity>
-                )}
-              />
-            ) : (
-              <Image source={require('../../assets/searchingGIF.gif')} style={styles.gifImage} />
-            )}
-          </View>
-        </ScrollView>
+        <View style={{ display: 'flex', justifyContent: 'center' }}>
+          {searchKeyword.length > 0 ? (
+            <FlatList
+              data={searchResults}
+              keyExtractor={item => item.id.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity style={styles.resultItem} onPress={() => navigatePage(item.press, item.activeBySearch)}>
+                  <Text style={styles.name}>{`${item.press} > ${item.name}`}</Text>
+                  <Text style={styles.description}>{item.description}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          ) : (
+            <Image source={require('../../assets/searchingGIF.gif')} style={styles.gifImage} />
+          )}
+        </View>
       </View>
     </View>
   );
